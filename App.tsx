@@ -1,131 +1,102 @@
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- *
- * @format
- */
-
+// App.js
 import React from 'react';
-import type {PropsWithChildren} from 'react';
-import {
-  ScrollView,
-  StatusBar,
-  StyleSheet,
-  Text,
-  useColorScheme,
-  View,
-} from 'react-native';
+import {NavigationContainer} from '@react-navigation/native';
+import {createStackNavigator} from '@react-navigation/stack';
+import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
+import Ionicons from 'react-native-vector-icons/Ionicons';
+import {LoginScreen} from './src/screens/auth/LoginScreen';
+import {RegisterScreen} from './src/screens/auth/RegisterScreen';
+import HomeScreen from './src/screens/HomeScreen';
+import BusinessCardScannerScreen from './src/screens/BusinessCardScannerScreen';
+import {CreatePollScreen} from './src/screens/polls/CreatePollScreen';
+import {PollDetailScreen} from './src/screens/polls/PollDetailScreen';
+import {PollStatsScreen} from './src/screens/polls/PollStatsScreen';
+import {AuthProvider, useAuth} from './src/context/AuthContext';
 
-import {
-  Colors,
-  DebugInstructions,
-  Header,
-  LearnMoreLinks,
-  ReloadInstructions,
-} from 'react-native/Libraries/NewAppScreen';
+// Auth Screens
 
-type SectionProps = PropsWithChildren<{
-  title: string;
-}>;
+// Main App Screens
 
-function Section({children, title}: SectionProps): React.JSX.Element {
-  const isDarkMode = useColorScheme() === 'dark';
+// Auth Context
+
+const Stack = createStackNavigator();
+const Tab = createBottomTabNavigator();
+
+// Authentication stack
+const AuthStack = () => (
+  <Stack.Navigator>
+    <Stack.Screen
+      name="Login"
+      component={LoginScreen}
+      options={{headerShown: false}}
+    />
+    <Stack.Screen
+      name="Register"
+      component={RegisterScreen}
+      options={{headerShown: false}}
+    />
+  </Stack.Navigator>
+);
+
+// Main app stack
+const HomeStack = () => (
+  <Stack.Navigator>
+    <Stack.Screen
+      name="Home"
+      component={HomeScreen}
+      options={({navigation}) => ({
+        title: 'Interest Poll App',
+        headerRight: () => (
+          <Ionicons
+            name="add-circle-outline"
+            size={24}
+            style={{marginRight: 15}}
+            onPress={() => navigation.navigate('CreatePoll')}
+          />
+        ),
+      })}
+    />
+    <Stack.Screen
+      name="BusinessCardScanner"
+      component={BusinessCardScannerScreen}
+      options={{title: 'Scan Business Card'}}
+    />
+    <Stack.Screen
+      name="CreatePoll"
+      component={CreatePollScreen}
+      options={{title: 'Create Poll'}}
+    />
+    <Stack.Screen
+      name="PollDetail"
+      component={PollDetailScreen}
+      options={{title: 'Poll Details'}}
+    />
+    <Stack.Screen
+      name="PollStats"
+      component={PollStatsScreen}
+      options={{title: 'Poll Statistics'}}
+    />
+  </Stack.Navigator>
+);
+
+// Navigation wrapper with auth state
+const AppNavigator = () => {
+  const {isLoggedIn} = useAuth();
+
   return (
-    <View style={styles.sectionContainer}>
-      <Text
-        style={[
-          styles.sectionTitle,
-          {
-            color: isDarkMode ? Colors.white : Colors.black,
-          },
-        ]}>
-        {title}
-      </Text>
-      <Text
-        style={[
-          styles.sectionDescription,
-          {
-            color: isDarkMode ? Colors.light : Colors.dark,
-          },
-        ]}>
-        {children}
-      </Text>
-    </View>
+    <NavigationContainer>
+      {isLoggedIn ? <HomeStack /> : <AuthStack />}
+    </NavigationContainer>
   );
-}
+};
 
-function App(): React.JSX.Element {
-  const isDarkMode = useColorScheme() === 'dark';
-
-  const backgroundStyle = {
-    backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
-  };
-
-  /*
-   * To keep the template simple and small we're adding padding to prevent view
-   * from rendering under the System UI.
-   * For bigger apps the reccomendation is to use `react-native-safe-area-context`:
-   * https://github.com/AppAndFlow/react-native-safe-area-context
-   *
-   * You can read more about it here:
-   * https://github.com/react-native-community/discussions-and-proposals/discussions/827
-   */
-  const safePadding = '5%';
-
+// Root component
+const App = () => {
   return (
-    <View style={backgroundStyle}>
-      <StatusBar
-        barStyle={isDarkMode ? 'light-content' : 'dark-content'}
-        backgroundColor={backgroundStyle.backgroundColor}
-      />
-      <ScrollView
-        style={backgroundStyle}>
-        <View style={{paddingRight: safePadding}}>
-          <Header/>
-        </View>
-        <View
-          style={{
-            backgroundColor: isDarkMode ? Colors.black : Colors.white,
-            paddingHorizontal: safePadding,
-            paddingBottom: safePadding,
-          }}>
-          <Section title="Step One">
-            Edit <Text style={styles.highlight}>App.tsx</Text> to change this
-            screen and then come back to see your edits.
-          </Section>
-          <Section title="See Your Changes">
-            <ReloadInstructions />
-          </Section>
-          <Section title="Debug">
-            <DebugInstructions />
-          </Section>
-          <Section title="Learn More">
-            Read the docs to discover what to do next:
-          </Section>
-          <LearnMoreLinks />
-        </View>
-      </ScrollView>
-    </View>
+    <AuthProvider>
+      <AppNavigator />
+    </AuthProvider>
   );
-}
-
-const styles = StyleSheet.create({
-  sectionContainer: {
-    marginTop: 32,
-    paddingHorizontal: 24,
-  },
-  sectionTitle: {
-    fontSize: 24,
-    fontWeight: '600',
-  },
-  sectionDescription: {
-    marginTop: 8,
-    fontSize: 18,
-    fontWeight: '400',
-  },
-  highlight: {
-    fontWeight: '700',
-  },
-});
+};
 
 export default App;
