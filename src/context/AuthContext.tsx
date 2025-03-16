@@ -3,7 +3,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const AuthContext = createContext();
 
-export const AuthProvider = ({children}) => {
+export const AuthProvider = ({children}: any) => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -28,7 +28,7 @@ export const AuthProvider = ({children}) => {
   }, []);
 
   // Login function
-  const login = async (username, password) => {
+  const login = async (username: string, password: string) => {
     // In a real app, you would make an API call to validate credentials
     // This is a simplified version for demonstration
     try {
@@ -37,7 +37,7 @@ export const AuthProvider = ({children}) => {
 
       // Simple validation (replace with actual API authentication)
       if (username && password) {
-        const userData = {username};
+        const userData: any = {username};
         await AsyncStorage.setItem('user', JSON.stringify(userData));
         setUser(userData);
         setIsLoggedIn(true);
@@ -51,7 +51,7 @@ export const AuthProvider = ({children}) => {
   };
 
   // Register function
-  const register = async (username, password) => {
+  const register = async (username: string, password: string) => {
     // In a real app, you would make an API call to create a new user
     try {
       // Simulating API call with timeout
