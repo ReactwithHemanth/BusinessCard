@@ -3,7 +3,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const AuthContext = createContext();
 
-export const AuthProvider = ({children}: any) => {
+export const AuthProvider = ({children}) => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -29,15 +29,21 @@ export const AuthProvider = ({children}: any) => {
 
   // Login function
   const login = async (username: string, password: string) => {
-    // In a real app, you would make an API call to validate credentials
-    // This is a simplified version for demonstration
     try {
       // Simulating API call with timeout
       await new Promise(resolve => setTimeout(resolve, 1000));
 
-      // Simple validation (replace with actual API authentication)
-      if (username && password) {
-        const userData: any = {username};
+      // Admin hardcoded credentials (in a real app, this would be verified on the server)
+      if (username === 'admin' && password === 'admin123') {
+        const userData: any = {username, isAdmin: true};
+        await AsyncStorage.setItem('user', JSON.stringify(userData));
+        setUser(userData);
+        setIsLoggedIn(true);
+        return {success: true};
+      }
+      // Regular user login
+      else if (username && password) {
+        const userData: any = {username, isAdmin: false};
         await AsyncStorage.setItem('user', JSON.stringify(userData));
         setUser(userData);
         setIsLoggedIn(true);
@@ -51,15 +57,22 @@ export const AuthProvider = ({children}: any) => {
   };
 
   // Register function
-  const register = async (username: string, password: string) => {
-    // In a real app, you would make an API call to create a new user
+  const register = async (username: string, password: string | any[]) => {
     try {
       // Simulating API call with timeout
       await new Promise(resolve => setTimeout(resolve, 1000));
 
+      // Prevent registering as admin
+      if (username.toLowerCase() === 'admin') {
+        return {success: false, error: 'This username is reserved'};
+      }
+
       // Simple validation (replace with actual API registration)
       if (username && password && password.length >= 6) {
-        const userData = {username};
+        const userData: {username: string; isAdmin: boolean} = {
+          username,
+          isAdmin: false,
+        }; //+
         await AsyncStorage.setItem('user', JSON.stringify(userData));
         setUser(userData);
         setIsLoggedIn(true);
@@ -96,6 +109,7 @@ export const AuthProvider = ({children}: any) => {
         login,
         register,
         logout,
+        isAdmin: user?.isAdmin || false,
       }}>
       {children}
     </AuthContext.Provider>

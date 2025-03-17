@@ -40,7 +40,7 @@ const AuthStack = () => (
 
 // Main app stack
 const HomeStack = () => (
-  <Stack.Navigator>
+  <Stack.Navigator screenOptions={{headerBackTitle: ''}}>
     <Stack.Screen
       name="Home"
       component={HomeScreen}

@@ -29,7 +29,7 @@ const fetchPolls = async () => {
 const HomeScreen = ({navigation}) => {
   const [polls, setPolls] = useState([]);
   const [refreshing, setRefreshing] = useState(false);
-  const {user, logout} = useAuth();
+  const {user, logout, isAdmin} = useAuth();
 
   const loadPolls = async () => {
     setRefreshing(true);
@@ -58,7 +58,6 @@ const HomeScreen = ({navigation}) => {
     ]);
   };
 
-  // src/screens/HomeScreen.js (continued)
   const renderPollItem = ({item}) => (
     <TouchableOpacity
       style={styles.pollItem}
@@ -90,7 +89,10 @@ const HomeScreen = ({navigation}) => {
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.welcomeText}>Welcome, {user?.username}!</Text>
+        <Text style={styles.welcomeText}>
+          Welcome, {user?.username}!
+          {isAdmin && <Text style={styles.adminBadge}> (Admin)</Text>}
+        </Text>
         <TouchableOpacity onPress={handleLogout}>
           <Ionicons name="log-out-outline" size={24} color="#333" />
         </TouchableOpacity>
@@ -134,11 +136,13 @@ const HomeScreen = ({navigation}) => {
             <View style={styles.pollHeader}>
               <Ionicons name="stats-chart" size={30} color="#4B0082" />
               <Text style={styles.pollCount}>{polls.length} polls</Text>
-              <TouchableOpacity
-                style={styles.addButton}
-                onPress={() => navigation.navigate('CreatePoll')}>
-                <Ionicons name="add-circle" size={30} color="#4B0082" />
-              </TouchableOpacity>
+              {isAdmin && (
+                <TouchableOpacity
+                  style={styles.addButton}
+                  onPress={() => navigation.navigate('CreatePoll')}>
+                  <Ionicons name="add-circle" size={30} color="#4B0082" />
+                </TouchableOpacity>
+              )}
             </View>
 
             {polls.length > 0 ? (
@@ -152,11 +156,13 @@ const HomeScreen = ({navigation}) => {
             ) : (
               <View style={styles.emptyState}>
                 <Text style={styles.emptyStateText}>No polls created yet</Text>
-                <Button
-                  title="Create Your First Poll"
-                  buttonStyle={styles.cardButton}
-                  onPress={() => navigation.navigate('CreatePoll')}
-                />
+                {isAdmin && (
+                  <Button
+                    title="Create Your First Poll"
+                    buttonStyle={styles.cardButton}
+                    onPress={() => navigation.navigate('CreatePoll')}
+                  />
+                )}
               </View>
             )}
           </View>
@@ -183,6 +189,10 @@ const styles = StyleSheet.create({
   welcomeText: {
     fontSize: 16,
     fontWeight: '500',
+  },
+  adminBadge: {
+    color: '#4B0082',
+    fontWeight: 'bold',
   },
   scrollContent: {
     padding: 10,
